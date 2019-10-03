@@ -22,12 +22,36 @@ private:
   int  MemLen; // к-во эл-тов Мем для представления бит.поля
 
   // методы реализации
-  int   GetMemIndex(const int n) const; // индекс в pМем для бита n       (#О2)
-  TELEM GetMemMask (const int n) const; // битовая маска для бита n       (#О3)
+  int   GetMemIndex(const int n) const { // индекс в pМем для бита n       (#О2)
+	  return n / 32;
+  }
+  TELEM GetMemMask(const int n) const { // битовая маска для бита n       (#О3)
+	  int v;
+	  v = n % 32;
+	  TELEM tmp = 1;
+	  tmp = tmp << v;
+	  return tmp;
+  }
 public:
-  TBitField(int len);                //                                   (#О1)
-  TBitField(const TBitField &bf);    //                                   (#П1)
-  ~TBitField();                      //                                    (#С)
+	TBitField(int len = 10) {  
+		BitLen = len;
+		MemLen = BitLen / (8 * sizeof(TELEM)) + 1;
+		pMem = new TELEM[MemLen];
+		for (int i = 0; i < MemLen; i++) {
+			pMem[i] = 0;
+		}
+	}
+	TBitField(const TBitField &bf) {
+		BitLen = bf.BitLen;
+		MemLen = bf.MemLen;
+		pMem = new TELEM[MemLen];
+		for (int i = 0; i < MemLen; i++) {
+			pMem[i] = bf.pMem[i];
+		}
+	}
+	~TBitField() {
+	  delete[] pMem;
+	}
 
   // доступ к битам
   int GetLength(void) const;      // получить длину (к-во битов)           (#О)
@@ -38,7 +62,18 @@ public:
   // битовые операции
   int operator==(const TBitField &bf) const; // сравнение                 (#О5)
   int operator!=(const TBitField &bf) const; // сравнение
-  TBitField& operator=(const TBitField &bf); // присваивание              (#П3)
+  TBitField& operator=(const TBitField &bf) { // присваивание              (#П3)
+	  BitLen = bf.BitLen;
+	  if (MemLen != bf.MemLen) {
+		  MemLen = bf.MemLen;
+		  delete[] pMem;
+		  pMem = new TELEM[MemLen];
+	  }
+	  for (int i = 0; i < MemLen; i++) {
+		  pMem[i] = bf.pMem[i];
+	  }
+	  return *this;
+  }
   TBitField  operator|(const TBitField &bf); // операция "или"            (#О6)
   TBitField  operator&(const TBitField &bf); // операция "и"              (#Л2)
   TBitField  operator~(void);                // отрицание                  (#С)
