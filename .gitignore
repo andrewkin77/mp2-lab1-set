@@ -4,6 +4,8 @@
 *.o
 *.obj
 
+*.DS_Store
+
 # Precompiled Headers
 *.gch
 *.pch
@@ -26,3 +28,6 @@
 *.exe
 *.out
 *.app
+
+#build directory
+/build
